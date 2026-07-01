@@ -34,7 +34,7 @@ public class RateLimiterMiddleware {
         RateLimitResult result=rateLimiter.tryConsume(identifier);
         if(!result.isAllowed()){
             // Rate limit exceeded - set 429 status
-            long retryAfter = calculateRetryAfterSeconds(
+            long retryAfter = RateLimitHeaders.retryAfterSeconds(
                 result.getRemainingTokens(), rateLimiter.getRefillRatePerSecond());
             response.status(429);
             response.type("application/json");
@@ -55,28 +55,11 @@ public class RateLimiterMiddleware {
         response.header("X-RateLimit-Remaining", String.valueOf((int)result.getRemainingTokens()));
         response.header("X-RateLimit-Capacity", String.valueOf(result.getCapacity()));
         response.header("X-RateLimit-Reset", String.valueOf(
-            calculateResetTime(result.getRemainingTokens(), rateLimiter.getRefillRatePerSecond())));
-    
+            RateLimitHeaders.resetSeconds(rateLimiter.getCapacity(),
+                result.getRemainingTokens(), rateLimiter.getRefillRatePerSecond())));
+
         logger.debug("Request allowed for identifier: {}", identifier);
         return true;
-    }
-    
-    private long calculateResetTime(double remainingTokens, double refillRatePerSecond)
-    {
-        if (refillRatePerSecond <= 0) return 0;
-        double tokensNeeded = rateLimiter.getCapacity() - remainingTokens;
-        return (long)(tokensNeeded / refillRatePerSecond);
-    }
-
-    /**
-     * Seconds until at least one token becomes available again, for the Retry-After header.
-     * Rounded up so clients never retry a fraction of a second too early.
-     */
-    private long calculateRetryAfterSeconds(double remainingTokens, double refillRatePerSecond) {
-        if (refillRatePerSecond <= 0) return 0;
-        double deficit = 1.0 - remainingTokens;
-        if (deficit <= 0) return 0;
-        return (long) Math.ceil(deficit / refillRatePerSecond);
     }
 }
 
