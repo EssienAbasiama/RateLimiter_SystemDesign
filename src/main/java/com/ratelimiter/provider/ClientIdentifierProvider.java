@@ -21,7 +21,6 @@ public class ClientIdentifierProvider implements IdentifierProvider {
     }
     @Override
     public String getIdentifier(){
-        System.out.println("Using identifier: " + identifier);
         return identifier;
     }
     

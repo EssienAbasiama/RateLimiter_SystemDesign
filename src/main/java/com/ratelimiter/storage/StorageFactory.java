@@ -11,6 +11,9 @@ RateLimiterConfig config
         switch(storageType.toLowerCase()){
             case "redis":
                 return new RedisStorage(config.getRedisHost(), config.getRedisPort());
+            case "memory":
+            case "in-memory":
+                return new InMemoryStorage();
             default:
                 throw new IllegalArgumentException("Invalid storage type: "+storageType);
         }
