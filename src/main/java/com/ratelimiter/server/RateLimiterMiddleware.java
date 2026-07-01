@@ -34,15 +34,20 @@ public class RateLimiterMiddleware {
         RateLimitResult result=rateLimiter.tryConsume(identifier);
         if(!result.isAllowed()){
             // Rate limit exceeded - set 429 status
+            long retryAfter = calculateRetryAfterSeconds(
+                result.getRemainingTokens(), rateLimiter.getRefillRatePerSecond());
             response.status(429);
             response.type("application/json");
+            // Standard header so well-behaved clients back off for the right amount of time.
+            response.header("Retry-After", String.valueOf(retryAfter));
             Map<String , Object>errorResponse=new HashMap<>();
             errorResponse.put("error", "Rate limit exceeded");
             errorResponse.put("message", "Too many requests. Please try again later.");
             errorResponse.put("remainingTokens", result.getRemainingTokens());
             errorResponse.put("capacity", result.getCapacity());
+            errorResponse.put("retryAfterSeconds", retryAfter);
             response.body(gson.toJson(errorResponse));
-                
+
             logger.warn("Rate limit exceeded for identifier: {}", identifier);
             return false;
         }
@@ -61,6 +66,17 @@ public class RateLimiterMiddleware {
         if (refillRatePerSecond <= 0) return 0;
         double tokensNeeded = rateLimiter.getCapacity() - remainingTokens;
         return (long)(tokensNeeded / refillRatePerSecond);
+    }
+
+    /**
+     * Seconds until at least one token becomes available again, for the Retry-After header.
+     * Rounded up so clients never retry a fraction of a second too early.
+     */
+    private long calculateRetryAfterSeconds(double remainingTokens, double refillRatePerSecond) {
+        if (refillRatePerSecond <= 0) return 0;
+        double deficit = 1.0 - remainingTokens;
+        if (deficit <= 0) return 0;
+        return (long) Math.ceil(deficit / refillRatePerSecond);
     }
 }
 
