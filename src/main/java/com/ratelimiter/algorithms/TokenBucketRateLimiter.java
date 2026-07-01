@@ -1,14 +1,14 @@
 package com.ratelimiter.algorithm;
 
-import com.ratelimiter.core.RateLimiter;
 import com.ratelimiter.core.Storage;
 
 /**
- * TokenBucketRateLimiter is an alias for TokenBucket
- * This class provides a more descriptive name for the rate limiter implementation
+ * Descriptive alias for {@link TokenBucket}. Kept for readability at call sites;
+ * {@code RateLimiter} is already inherited from the superclass.
  */
-public class TokenBucketRateLimiter extends TokenBucket implements RateLimiter {
-    
+public class TokenBucketRateLimiter extends TokenBucket {
+
+
     public TokenBucketRateLimiter(
         Storage storage,
         int capacity,

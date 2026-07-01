@@ -2,3 +2,14 @@ DesignPattern.md
 SystemDesign.md
 agent.json
 Read_me.md
+
+# Build output
+target/
+
+# IDE / editor
+.idea/
+*.iml
+.vscode/
+
+# Logs
+*.log
