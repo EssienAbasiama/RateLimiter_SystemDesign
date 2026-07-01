@@ -1,0 +1,22 @@
+version: "3.8"
+
+# Spin up the Redis backend the rate limiter uses:
+#   docker compose up -d
+# Then run the app with storage.type=redis (the default) pointing at localhost:6379.
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: ratelimiter-redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  redis-data:
