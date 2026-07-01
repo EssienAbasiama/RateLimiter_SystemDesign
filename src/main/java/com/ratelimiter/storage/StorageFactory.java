@@ -10,7 +10,7 @@ RateLimiterConfig config
         String storageType=config.getStorageType();
         switch(storageType.toLowerCase()){
             case "redis":
-                return new RedisStorage(config.getRedisHost(), config.getRedisPort());
+                return new RedisStorage(config.getRedisHost(), config.getRedisPort(), config.isRedisFailOpen());
             case "memory":
             case "in-memory":
                 return new InMemoryStorage();

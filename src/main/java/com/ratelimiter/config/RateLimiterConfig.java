@@ -9,6 +9,7 @@ public final class RateLimiterConfig {
     private final String storageType;
     private final String redisHost;
     private final int redisPort;
+    private final boolean redisFailOpen;
     private final int serverPort;
 
 
@@ -27,6 +28,8 @@ public final class RateLimiterConfig {
         // Redis configuration
         this.redisHost = props.getProperty("redis.host", "localhost");
         this.redisPort = Integer.parseInt(props.getProperty("redis.port", "6379"));
+        // When Redis is unreachable: true = allow traffic (availability), false = reject (strict).
+        this.redisFailOpen = Boolean.parseBoolean(props.getProperty("redis.fail.open", "true"));
         
         // Server configuration
         this.serverPort = Integer.parseInt(props.getProperty("server.port", "8080"));
@@ -38,5 +41,6 @@ public final class RateLimiterConfig {
         public String getStorageType() { return storageType; }
         public String getRedisHost() { return redisHost; }
         public int getRedisPort() { return redisPort; }
+        public boolean isRedisFailOpen() { return redisFailOpen; }
         public int getServerPort() { return serverPort; }
 }
