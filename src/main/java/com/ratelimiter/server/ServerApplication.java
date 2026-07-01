@@ -63,8 +63,9 @@ public class ServerApplication {
     
     get("/api/health", (req, res) -> {
         res.type("application/json");
-        return "{\"status\":\"healthy\",\"rateLimiter\":{\"capacity\":" + 
-               rateLimiter.getCapacity() + ",\"refillRate\":" + 
+        return "{\"status\":\"healthy\",\"storage\":\"" + config.getStorageType() +
+               "\",\"rateLimiter\":{\"capacity\":" +
+               rateLimiter.getCapacity() + ",\"refillRate\":" +
                rateLimiter.getRefillRatePerSecond() + "}}";
     });
 
